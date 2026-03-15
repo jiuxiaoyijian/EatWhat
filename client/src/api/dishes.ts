@@ -1,46 +1,187 @@
-import axios from 'axios';
 import type { Dish, CreateDishDTO, UpdateDishDTO, DrawResult, LotteryHistory } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_BASE || '';
+const STORAGE_KEYS = {
+  dishes: 'eatwhat_dishes',
+  history: 'eatwhat_history',
+  nextDishId: 'eatwhat_next_dish_id',
+  nextHistoryId: 'eatwhat_next_history_id',
+};
 
-const api = axios.create({
-  baseURL: `${API_BASE}/api`,
-  headers: { 'Content-Type': 'application/json' },
-});
+const LUCKY_TEXTS = [
+  '今日干饭首选！',
+  '天选打工人的午餐！',
+  '命中注定的美味！',
+  '就是它了，冲！',
+  '今天就吃这个，不接受反驳！',
+  '恭喜中奖，请享用！',
+  '美食之神的选择！',
+  '这顿必须安排上！',
+  '幸运美食已送达！',
+  '干饭人干饭魂，今天就吃它！',
+  '宇宙的尽头是这道菜！',
+  '今日份快乐由它承包！',
+  '打工人的能量补给站！',
+  '吃货雷达已锁定目标！',
+  '人生苦短，先干这碗饭！',
+];
+
+function loadDishes(): Dish[] {
+  const raw = localStorage.getItem(STORAGE_KEYS.dishes);
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveDishes(dishes: Dish[]): void {
+  localStorage.setItem(STORAGE_KEYS.dishes, JSON.stringify(dishes));
+}
+
+function loadHistory(): LotteryHistory[] {
+  const raw = localStorage.getItem(STORAGE_KEYS.history);
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveHistory(history: LotteryHistory[]): void {
+  localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
+}
+
+function getNextId(key: string): number {
+  const current = parseInt(localStorage.getItem(key) || '0');
+  const next = current + 1;
+  localStorage.setItem(key, String(next));
+  return next;
+}
+
+function nowString(): string {
+  return new Date().toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  });
+}
 
 export async function getAllDishes(): Promise<Dish[]> {
-  const { data } = await api.get<Dish[]>('/dishes');
-  return data;
+  return loadDishes().sort((a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 }
 
 export async function createDish(dto: CreateDishDTO): Promise<Dish> {
-  const { data } = await api.post<Dish>('/dishes', dto);
-  return data;
+  const dishes = loadDishes();
+  const now = nowString();
+  const dish: Dish = {
+    id: getNextId(STORAGE_KEYS.nextDishId),
+    name: dto.name,
+    category: dto.category || '其他',
+    weight: dto.weight ?? 5,
+    remark: dto.remark || '',
+    created_by: dto.created_by || '匿名',
+    created_at: now,
+    updated_at: now,
+  };
+  dishes.push(dish);
+  saveDishes(dishes);
+  return dish;
 }
 
 export async function updateDish(id: number, dto: UpdateDishDTO): Promise<Dish> {
-  const { data } = await api.put<Dish>(`/dishes/${id}`, dto);
-  return data;
+  const dishes = loadDishes();
+  const idx = dishes.findIndex(d => d.id === id);
+  if (idx === -1) throw new Error('菜品不存在');
+  const dish = dishes[idx];
+  dishes[idx] = {
+    ...dish,
+    name: dto.name ?? dish.name,
+    category: dto.category ?? dish.category,
+    weight: dto.weight ?? dish.weight,
+    remark: dto.remark ?? dish.remark,
+    updated_at: nowString(),
+  };
+  saveDishes(dishes);
+  return dishes[idx];
 }
 
 export async function deleteDish(id: number): Promise<void> {
-  await api.delete(`/dishes/${id}`);
+  const dishes = loadDishes().filter(d => d.id !== id);
+  saveDishes(dishes);
 }
 
 export async function drawLottery(): Promise<DrawResult> {
-  const { data } = await api.post<DrawResult>('/lottery/draw');
-  return data;
+  const dishes = loadDishes();
+  if (dishes.length === 0) throw new Error('没有可抽取的菜品');
+
+  const totalWeight = dishes.reduce((sum, d) => sum + d.weight, 0);
+  let random = Math.random() * totalWeight;
+  let selected = dishes[0];
+  for (const dish of dishes) {
+    random -= dish.weight;
+    if (random <= 0) { selected = dish; break; }
+  }
+
+  const luckyText = LUCKY_TEXTS[Math.floor(Math.random() * LUCKY_TEXTS.length)];
+  const historyId = getNextId(STORAGE_KEYS.nextHistoryId);
+
+  const history = loadHistory();
+  history.unshift({
+    id: historyId,
+    dish_id: selected.id,
+    dish_name: selected.name,
+    lucky_text: luckyText,
+    drawn_at: nowString(),
+  });
+  if (history.length > 200) history.length = 200;
+  saveHistory(history);
+
+  return { dish: selected, luckyText, historyId };
 }
 
 export async function getLotteryHistory(limit = 50): Promise<LotteryHistory[]> {
-  const { data } = await api.get<LotteryHistory[]>('/lottery/history', { params: { limit } });
-  return data;
+  return loadHistory().slice(0, limit);
 }
 
-export function getExportJsonUrl(): string {
-  return `${API_BASE}/api/export/json`;
+export function exportDishesJson(): void {
+  const dishes = loadDishes();
+  const blob = new Blob([JSON.stringify(dishes, null, 2)], { type: 'application/json' });
+  downloadBlob(blob, 'dishes.json');
 }
 
-export function getExportCsvUrl(): string {
-  return `${API_BASE}/api/export/csv`;
+export function exportDishesCsv(): void {
+  const dishes = loadDishes();
+  const header = 'ID,名称,分类,权重,备注,添加人,添加时间,更新时间';
+  const rows = dishes.map(d =>
+    [d.id, d.name, d.category, d.weight, d.remark, d.created_by, d.created_at, d.updated_at]
+      .map(v => `"${String(v).replace(/"/g, '""')}"`)
+      .join(',')
+  );
+  const csv = '\uFEFF' + [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  downloadBlob(blob, 'dishes.csv');
+}
+
+export function importDishesJson(file: File): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const imported = JSON.parse(reader.result as string) as Dish[];
+        if (!Array.isArray(imported)) throw new Error('格式错误');
+        const existing = loadDishes();
+        let maxId = Math.max(0, ...existing.map(d => d.id));
+        const newDishes = imported.map(d => ({ ...d, id: ++maxId }));
+        saveDishes([...existing, ...newDishes]);
+        localStorage.setItem(STORAGE_KEYS.nextDishId, String(maxId));
+        resolve(newDishes.length);
+      } catch (e) {
+        reject(e);
+      }
+    };
+    reader.onerror = () => reject(new Error('文件读取失败'));
+    reader.readAsText(file);
+  });
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }

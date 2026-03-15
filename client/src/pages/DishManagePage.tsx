@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import type { Dish, CreateDishDTO, UpdateDishDTO } from '../types';
-import { getAllDishes, createDish, updateDish, deleteDish, getExportJsonUrl, getExportCsvUrl } from '../api/dishes';
+import { getAllDishes, createDish, updateDish, deleteDish, exportDishesJson, exportDishesCsv, importDishesJson } from '../api/dishes';
 import DishCard from '../components/DishCard';
 import DishForm from '../components/DishForm';
 import styles from './DishManagePage.module.css';
@@ -11,6 +11,7 @@ export default function DishManagePage() {
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const importRef = useRef<HTMLInputElement>(null);
 
   const fetchDishes = useCallback(async () => {
     try {
@@ -62,13 +63,28 @@ export default function DishManagePage() {
     }
   };
 
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const count = await importDishesJson(file);
+      alert(`成功导入 ${count} 道菜品！`);
+      await fetchDishes();
+    } catch {
+      alert('导入失败，请检查文件格式');
+    }
+    if (importRef.current) importRef.current.value = '';
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <h2 className={styles.title}>菜品管理</h2>
         <div className={styles.headerActions}>
-          <a href={getExportJsonUrl()} className={styles.exportBtn} download>JSON</a>
-          <a href={getExportCsvUrl()} className={styles.exportBtn} download>CSV</a>
+          <button className={styles.exportBtn} onClick={exportDishesJson}>导出JSON</button>
+          <button className={styles.exportBtn} onClick={exportDishesCsv}>导出CSV</button>
+          <button className={styles.exportBtn} onClick={() => importRef.current?.click()}>导入</button>
+          <input ref={importRef} type="file" accept=".json" onChange={handleImport} hidden />
           <button className={styles.addBtn} onClick={() => { setShowForm(true); setEditingDish(null); }}>
             + 添加菜品
           </button>
