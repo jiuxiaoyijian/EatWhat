@@ -1,107 +1,89 @@
-# 中午吃啥 - 午餐随机抽取系统
+# 🍜 中午吃啥 - 午餐随机抽取系统
 
-解决团队日常午餐选择困难的问题，通过趣味性的随机抽取动画帮你决定今天吃什么。
+> 解决「中午吃什么」这个世纪难题！通过趣味性的随机抽取动画，帮你决定今天吃啥。
+
+**在线体验：https://jiuxiaoyijian.github.io/EatWhat/**
 
 ## 功能特性
 
-- **菜品管理**：添加、编辑、删除菜品，支持分类和权重设置
-- **随机抽取**：按权重概率随机抽取，配合滚动动画效果
-- **海报生成**：抽取结果自动生成精美海报，支持下载分享
-- **历史记录**：查看过往抽取结果，避免重复选择
-- **数据导出**：支持 JSON/CSV 格式导出菜品数据
+- **随机抽取** — 按菜品权重概率随机抽取，配合快→慢→停的滚动动画 + 礼花特效
+- **菜品管理** — 添加、编辑、删除菜品，支持分类和权重（1-10）设置
+- **海报生成** — 抽取结果自动生成暖色调精美海报，支持下载 PNG
+- **历史记录** — 查看过往抽取结果，避免重复选择
+- **数据导入导出** — 支持 JSON/CSV 格式导出，JSON 格式导入，防止数据丢失
+- **内置菜单** — 首次使用自带 12 道经典中式菜品，即开即用
+- **响应式设计** — 适配手机和电脑，移动端操作按钮大而易点
 
 ## 技术栈
 
-| 层级 | 技术 |
+| 技术 | 说明 |
 |------|------|
-| 前端 | React 18 + Vite + TypeScript |
-| 动画 | Framer Motion |
-| 海报 | html2canvas |
-| 后端 | Node.js + Express + TypeScript |
-| 数据库 | SQLite (better-sqlite3) |
+| React 18 | UI 框架 |
+| TypeScript | 类型安全 |
+| Vite | 构建工具 |
+| Framer Motion | 抽取滚动动画 + 结果展示动效 |
+| canvas-confetti | 礼花特效 |
+| html2canvas | 海报图片生成 |
+| localStorage | 浏览器端数据持久化 |
+| GitHub Pages | 静态站点托管 |
+| GitHub Actions | 自动构建部署 |
 
-## 快速开始
-
-### 环境要求
-
-- Node.js >= 18
-- npm >= 9
-
-### 安装依赖
+## 本地开发
 
 ```bash
-# 安装后端依赖
-cd server
+# 环境要求：Node.js >= 18
+
+# 克隆项目
+git clone https://github.com/jiuxiaoyijian/EatWhat.git
+cd EatWhat/client
+
+# 安装依赖
 npm install
 
-# 安装前端依赖
-cd ../client
-npm install
+# 启动开发服务器
+npm run dev
+# 浏览器打开 http://localhost:5173/EatWhat/
 ```
 
-### 开发模式
+## 构建部署
 
 ```bash
-# 启动后端（端口 3001）
-cd server
-npm run dev
-
-# 启动前端（端口 5173）
-cd client
-npm run dev
-```
-
-### 生产部署
-
-```bash
-# 构建前端
 cd client
 npm run build
-
-# 启动生产服务（PM2）
-cd ../server
-npm run build
-pm2 start ecosystem.config.js
+# 产物在 client/dist/ 目录，可部署到任何静态文件服务器
 ```
 
-### 一键启动
-
-```bash
-# 在项目根目录
-npm run start:prod
-```
+**GitHub Pages 自动部署**：每次推送到 `master` 分支，GitHub Actions 自动构建并部署到 https://jiuxiaoyijian.github.io/EatWhat/
 
 ## 项目结构
 
 ```
 EatWhat/
-├── client/          # 前端 React 应用
-│   └── src/
-│       ├── components/    # 通用组件
-│       ├── pages/         # 页面组件
-│       ├── features/      # 功能模块（抽取动画、海报）
-│       ├── api/           # API 请求
-│       └── types/         # 类型定义
-├── server/          # 后端 Express 服务
-│   └── src/
-│       ├── routes/        # API 路由
-│       ├── services/      # 业务逻辑
-│       └── db/            # 数据库
+├── client/                      # React 前端应用
+│   ├── src/
+│   │   ├── api/dishes.ts        # 数据服务层（localStorage）
+│   │   ├── components/          # 通用组件（DishCard, DishForm, WeightBar, Navbar）
+│   │   ├── features/
+│   │   │   ├── lottery/         # 抽取动画（LotteryWheel, ResultDisplay）
+│   │   │   └── poster/         # 海报生成（PosterCanvas）
+│   │   ├── pages/              # 页面（HomePage, DishManagePage, HistoryPage）
+│   │   ├── styles/             # 全局样式
+│   │   └── types/              # TypeScript 类型定义
+│   └── vite.config.ts
+├── .github/workflows/deploy.yml # GitHub Actions 自动部署
 └── README.md
 ```
 
-## API 接口
+## 数据说明
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/dishes | 获取所有菜品 |
-| POST | /api/dishes | 添加菜品 |
-| PUT | /api/dishes/:id | 编辑菜品 |
-| DELETE | /api/dishes/:id | 删除菜品 |
-| POST | /api/lottery/draw | 随机抽取 |
-| GET | /api/lottery/history | 抽取历史 |
-| GET | /api/export/json | 导出 JSON |
-| GET | /api/export/csv | 导出 CSV |
+- 数据存储在浏览器 `localStorage` 中，刷新页面不丢失
+- 清除浏览器缓存会重置数据（将自动恢复默认菜单）
+- 通过菜品管理页的「导出JSON」备份数据，「导入」恢复数据
+- 不同浏览器/设备的数据相互独立
+
+## 默认菜品
+
+首次使用自带 12 道经典中式菜品：黄焖鸡米饭、兰州拉面、麻辣烫、红烧牛肉面、宫保鸡丁饭、番茄鸡蛋盖饭、酸菜鱼、沙县小吃、麻辣香锅、肉夹馍+凉皮、煲仔饭、水饺。
 
 ## 许可证
 

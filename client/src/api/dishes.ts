@@ -25,9 +25,45 @@ const LUCKY_TEXTS = [
   '人生苦短，先干这碗饭！',
 ];
 
+function nowString(): string {
+  return new Date().toLocaleString('zh-CN', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  });
+}
+
+const DEFAULT_DISHES: Omit<Dish, 'id'>[] = [
+  { name: '黄焖鸡米饭', category: '快餐', weight: 7, remark: '经典下饭', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '兰州拉面',   category: '面食', weight: 6, remark: '一清二白三红', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '麻辣烫',     category: '小吃', weight: 8, remark: '自选搭配', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '红烧牛肉面', category: '面食', weight: 6, remark: '', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '宫保鸡丁饭', category: '快餐', weight: 7, remark: '微辣下饭', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '番茄鸡蛋盖饭', category: '快餐', weight: 5, remark: '清淡之选', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '酸菜鱼',     category: '川菜', weight: 8, remark: '酸辣过瘾', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '沙县小吃',   category: '小吃', weight: 5, remark: '蒸饺拌面扁肉', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '麻辣香锅',   category: '川菜', weight: 7, remark: '重口必选', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '肉夹馍+凉皮', category: '小吃', weight: 6, remark: '西北经典套餐', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '煲仔饭',     category: '粤菜', weight: 6, remark: '锅巴超香', created_by: '系统', created_at: '', updated_at: '' },
+  { name: '水饺',       category: '面食', weight: 5, remark: '三鲜/猪肉白菜', created_by: '系统', created_at: '', updated_at: '' },
+];
+
+function initDefaultDishes(): Dish[] {
+  const now = nowString();
+  const dishes = DEFAULT_DISHES.map((d, i) => ({
+    ...d,
+    id: i + 1,
+    created_at: now,
+    updated_at: now,
+  }));
+  saveDishes(dishes);
+  localStorage.setItem(STORAGE_KEYS.nextDishId, String(dishes.length));
+  return dishes;
+}
+
 function loadDishes(): Dish[] {
   const raw = localStorage.getItem(STORAGE_KEYS.dishes);
-  return raw ? JSON.parse(raw) : [];
+  if (raw) return JSON.parse(raw);
+  return initDefaultDishes();
 }
 
 function saveDishes(dishes: Dish[]): void {
@@ -48,13 +84,6 @@ function getNextId(key: string): number {
   const next = current + 1;
   localStorage.setItem(key, String(next));
   return next;
-}
-
-function nowString(): string {
-  return new Date().toLocaleString('zh-CN', {
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
-  });
 }
 
 export async function getAllDishes(): Promise<Dish[]> {
