@@ -1,0 +1,118 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 400px;
+  justify-content: center;
+}
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.hint {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.drawBtn {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.drawBtn::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.drawBtn:hover::before {
+  opacity: 1;
+}
+
+.drawBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(255, 107, 53, 0.5);
+}
+
+.drawBtn:active {
+  transform: scale(0.95);
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.btnText {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.btnSub {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.spinDisplay {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  text-align: center;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinHint {
+  font-size: 1rem;
+  color: var(--color-text-light);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@media (max-width: 480px) {
+  .drawBtn {
+    width: 180px;
+    height: 180px;
+  }
+  .btnText {
+    font-size: 1.5rem;
+  }
+  .spinDisplay {
+    font-size: 2.25rem;
+  }
+}

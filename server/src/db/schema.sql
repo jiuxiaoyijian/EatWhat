@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS dishes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  category TEXT DEFAULT '其他',
+  weight INTEGER DEFAULT 5 CHECK(weight >= 1 AND weight <= 10),
+  remark TEXT DEFAULT '',
+  created_by TEXT DEFAULT '匿名',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS lottery_history (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  dish_id INTEGER NOT NULL,
+  dish_name TEXT NOT NULL,
+  lucky_text TEXT,
+  drawn_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (dish_id) REFERENCES dishes(id)
+);

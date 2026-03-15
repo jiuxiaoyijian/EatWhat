@@ -1,0 +1,126 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.poster {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.posterBg {
+  background: linear-gradient(160deg, #FF6B35 0%, #FFC233 50%, #FFD166 100%);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 400px;
+}
+
+.posterHeader {
+  text-align: center;
+}
+
+.posterLogo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 2px;
+}
+
+.posterBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.posterCategory {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 16px;
+  border-radius: 999px;
+}
+
+.posterDishName {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  line-height: 1.2;
+}
+
+.posterLucky {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+}
+
+.posterRemark {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.posterFooter {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.downloadBtn,
+.closeBtn {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: transform 0.2s;
+}
+
+.downloadBtn {
+  background: white;
+  color: var(--color-primary);
+}
+
+.downloadBtn:hover {
+  transform: translateY(-2px);
+}
+
+.closeBtn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

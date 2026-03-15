@@ -1,0 +1,17 @@
+{
+  "name": "eatwhat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "中午吃啥 - 午餐随机抽取系统",
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "build": "npm run build:client && npm run build:server",
+    "start:prod": "npm run build && cd server && node dist/index.js",
+    "start:pm2": "npm run build && cd server && pm2 start ecosystem.config.js",
+    "stop:pm2": "cd server && pm2 stop eatwhat",
+    "restart:pm2": "cd server && pm2 restart eatwhat"
+  }
+}

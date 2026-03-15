@@ -1,0 +1,87 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+}
+
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: var(--color-text-light);
+  font-size: 1rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-light);
+}
+
+.empty p:first-child {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-bg-card);
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
+  transition: box-shadow 0.2s;
+}
+
+.item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.itemLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.itemIndex {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  font-weight: 600;
+  min-width: 36px;
+}
+
+.itemName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.itemLucky {
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  margin-top: 2px;
+}
+
+.itemTime {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  white-space: nowrap;
+}
