@@ -9,6 +9,8 @@ server/dist/
 server/*.db
 server/*.sqlite
 *.db
+*.db-wal
+*.db-shm
 *.sqlite
 
 # Environment
